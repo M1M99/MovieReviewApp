@@ -1,94 +1,214 @@
-import styles from './../../../style/movie.module.css';
+'use client'
+import React, { useEffect, useState } from 'react';
+import { Star, MessageCircle, Play, Heart, Share2, Clock, Calendar } from 'lucide-react';
+import { useParams } from 'next/navigation';
+const StarRating = ({ rating, totalRatings }) => {
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 !== 0;
+  
+  return (
+    <div className="flex items-center space-x-2">
+      <div className="flex items-center">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            size={16}
+            className={`${
+              i < fullStars
+                ? 'text-yellow-400 fill-yellow-400'
+                : i === fullStars && hasHalfStar
+                ? 'text-yellow-400 fill-yellow-400/50'
+                : 'text-gray-300'
+            } transition-colors duration-200`}
+          />
+        ))}
+      </div>
+      <span className="text-sm text-gray-600">
+        {rating} ({totalRatings.toLocaleString()})
+      </span>
+    </div>
+  );
+};
 
 export default function MovieCard() {
-  return (
-    <div className={styles.movieCard}>
-      <div className={styles.container}>
-        <a href="#">
-          <img
-            src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/hobbit_cover.jpg"
-            alt="cover"
-            className={styles.cover}
-          />
-        </a>
+  const { id } = useParams();
+  const [movie, setMovie] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLiked, setIsLiked] = useState(false);
 
-        <div className={styles.hero}>
-          <div className={styles.details}>
-            <div className={styles.title1}>
-              The Hobbit <span>PG-13</span>
+  useEffect(() => {
+    async function fetchMovie() {
+      if (!id) return;
+      
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/movie/${id}`);
+        const data = await res.json();
+        setMovie(data);
+        console.log(data);
+      } catch (error) {
+        console.error("Error fetching movie:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (id) fetchMovie();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400"></div>
+      </div>
+    );
+  }
+
+  if (!movie) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Movie not found</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden shadow-2xl border border-white/20">
+          <div className="md:flex">
+            {/* Movie Poster */}
+            <div className="md:w-1/3 relative group">
+              <div className="aspect-[2/3] relative overflow-hidden">
+                <img
+                  src={movie.imageUrl}
+                  alt={movie.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <button className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 hover:bg-white/30 transition-colors duration-200">
+                    <Play size={32} className="text-white ml-1" fill="white" />
+                  </div>
+                </button>
+              </div>
             </div>
 
-            <div className={styles.title2}>The Battle of the Five Armies</div>
+            <div className="md:w-2/3 p-8 text-white">
+              <div className="mb-6">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+                      {movie.title}
+                      <span className="ml-3 text-lg bg-purple-600/30 px-3 py-1 rounded-full text-xs font-medium">
+                        PG-13
+                      </span>
+                    </h1>
+                    <h2 className="text-xl text-purple-200 mb-4">The Battle of the Five Armies</h2>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => setIsLiked(!isLiked)}
+                      className={`p-2 rounded-full transition-all duration-200 ${
+                        isLiked 
+                          ? 'bg-red-500 text-white' 
+                          : 'bg-white/10 text-white hover:bg-white/20'
+                      }`}
+                    >
+                      <Heart size={20} fill={isLiked ? 'white' : 'none'} />
+                    </button>
+                    <button className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-200">
+                      <Share2 size={20} />
+                    </button>
+                  </div>
+                </div>
 
-            <fieldset className={styles.rating}>
-              <input type="radio" id="star5" name="rating" value="5" />
-              <label className="full" htmlFor="star5" title="Awesome - 5 stars"></label>
+                {/* Movie Info */}
+                <div className="flex items-center space-x-6 text-sm text-purple-200 mb-4">
+                  <div className="flex items-center space-x-1">
+                    <Calendar size={16} />
+                    <span>{movie.year}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Clock size={16} />
+                    <span>{movie.duration} min</span>
+                  </div>
+                </div>
 
-              <input type="radio" id="star4half" name="rating" value="4 and a half" />
-              <label className="half" htmlFor="star4half" title="Pretty good - 4.5 stars"></label>
+                <StarRating rating={4.2} totalRatings={movie.reviews.length} />
+              </div>
 
-              <input type="radio" id="star4" name="rating" value="4" defaultChecked />
-              <label className="full" htmlFor="star4" title="Pretty good - 4 stars"></label>
+              <div className="mb-6">
+                <div className="flex flex-wrap gap-2">
+                  {['Action', 'Fantasy', 'Adventure'].map((genre, index) => (
+                    <span
+                      key={index}
+                      className="bg-gradient-to-r from-purple-600/30 to-blue-600/30 px-4 py-2 rounded-full text-sm font-medium border border-purple-400/30 hover:border-purple-400/50 transition-colors duration-200"
+                    >
+                      {genre}
+                    </span>
+                  ))}
+                </div>
+              </div>
 
-              <input type="radio" id="star3half" name="rating" value="3 and a half" />
-              <label className="half" htmlFor="star3half" title="Meh - 3.5 stars"></label>
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-3 text-purple-200">Synopsis</h3>
+                <p className="text-gray-300 leading-relaxed">
+                  {movie.synopsis}
+                </p>
+              </div>
 
-              <input type="radio" id="star3" name="rating" value="3" />
-              <label className="full" htmlFor="star3" title="Meh - 3 stars"></label>
+              {/* Cast */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-4 text-purple-200">Cast</h3>
+                <div className="flex space-x-4">
+                  {[
+                    { name: "Martin Freeman", avatar: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100&h=100" },
+                    { name: "Ian McKellen", avatar: "https://images.pexels.com/photos/697509/pexels-photo-697509.jpeg?auto=compress&cs=tinysrgb&w=100&h=100" },
+                    { name: "Richard Armitage", avatar: "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=100&h=100" }
+                  ].map((actor, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col items-center group cursor-pointer"
+                    >
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-400/30 group-hover:border-purple-400 transition-colors duration-200">
+                        <img
+                          src={actor.avatar}
+                          alt={actor.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="text-xs text-gray-400 mt-2 text-center group-hover:text-white transition-colors duration-200">
+                        {actor.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-              <input type="radio" id="star2half" name="rating" value="2 and a half" />
-              <label className="half" htmlFor="star2half" title="Kinda bad - 2.5 stars"></label>
+              <div className="mb-8">
+                <div className="flex items-center space-x-3 mb-4">
+                  <MessageCircle size={20} className="text-purple-400" />
+                  <h3 className="text-lg font-semibold text-purple-200">
+                    Reviews ({movie.reviews ? movie.reviews.length : 0})
+                  </h3>
+                </div>
+                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                  <p className="text-gray-300 text-sm">
+                    Join the conversation and share your thoughts about this movie.
+                  </p>
+                </div>
+              </div>
 
-              <input type="radio" id="star2" name="rating" value="2" />
-              <label className="full" htmlFor="star2" title="Kinda bad - 2 stars"></label>
-
-              <input type="radio" id="star1half" name="rating" value="1 and a half" />
-              <label className="half" htmlFor="star1half" title="Meh - 1.5 stars"></label>
-
-              <input type="radio" id="star1" name="rating" value="1" />
-              <label className="full" htmlFor="star1" title="Sucks big time - 1 star"></label>
-
-              <input type="radio" id="starhalf" name="rating" value="half" />
-              <label className="half" htmlFor="starhalf" title="Sucks big time - 0.5 stars"></label>
-            </fieldset>
-
-            <span className={styles.likes}>109 likes</span>
-          </div>
-        </div>
-
-        <div className={styles.description}>
-          <div className={styles.column1}>
-            <span className={styles.tag}>action</span>
-            <span className={styles.tag}>fantasy</span>
-            <span className={styles.tag}>adventure</span>
-          </div>
-
-          <div className={styles.column2}>
-            <p>
-              Bilbo Baggins is swept into a quest to reclaim the lost Dwarf Kingdom of Erebor from the fearsome dragon Smaug. Approached
-              out of the blue by the wizard Gandalf the Grey, Bilbo finds himself joining a company of thirteen dwarves led by the legendary
-              warrior, Thorin Oakenshield. Their journey will take them into the Wild; through... <a href="#">read more</a>
-            </p>
-
-            <div className={styles.avatars}>
-              <a href="#" data-tooltip="Person 1" data-placement="top">
-                <img
-                  src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/hobbit_avatar1.png"
-                  alt="avatar1"
-                />
-              </a>
-              <a href="#" data-tooltip="Person 2" data-placement="top">
-                <img
-                  src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/hobbit_avatar2.png"
-                  alt="avatar2"
-                />
-              </a>
-              <a href="#" data-tooltip="Person 3" data-placement="top">
-                <img
-                  src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/hobbit_avatar3.png"
-                  alt="avatar3"
-                />
-              </a>
+              <div className="flex space-x-4">
+                <button className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95">
+                  <Play size={20} fill="white" />
+                  <span>Watch Now</span>
+                </button>
+                <button className="bg-white/10 hover:bg-white/20 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 border border-white/20 hover:border-white/30">
+                  Add to Watchlist
+                </button>
+              </div>
             </div>
           </div>
         </div>

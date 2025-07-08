@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Play, Star, Calendar, Clock, Tag, Info, Plus, Heart } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 
 //#region MockData
@@ -96,7 +98,7 @@ export default function MovieGrid() {
   }
   const [hoveredCard, setHoveredCard] = useState(null);
   const [likedMovies, setLikedMovies] = useState(new Set());
-
+  const router = useRouter();
   useEffect(() => {
     GET();
   }, [])
@@ -115,8 +117,8 @@ export default function MovieGrid() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(120,119,198,0.1),transparent_50%)] opacity-40"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(236,72,153,0.1),transparent_50%)] opacity-30"></div>
+      <div className=" inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(120,119,198,0.1),transparent_50%)] opacity-40"></div>
+      <div className=" inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(236,72,153,0.1),transparent_50%)] opacity-30"></div>
 
       <div className="relative z-10 pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-6">
@@ -197,7 +199,7 @@ export default function MovieGrid() {
                     </div>
                     <div className="flex items-center space-x-1">
                       <Clock className="w-4 h-4" />
-                      <span>{movie.duration}</span>
+                      <span>{movie.duration}m</span>
                     </div>
                   </div>
                 </div>
@@ -222,14 +224,22 @@ export default function MovieGrid() {
                 {movie.reviews && movie.reviews.length > 0 && (
                   <div className="mt-4 text-sm text-white/80 space-y-2">
                     <h4 className="font-semibold text-white">Reviews:</h4>
-                    {movie.reviews.slice(0, 2).map((review, i) => (
-                      <div key={i} className="border-l-4 border-white/20 pl-3 italic text-gray-300">
-                        {review.comment || <span className="text-gray-500">No comment</span>} –
-                        <span className="ml-2 text-yellow-300 font-medium">{review.rating}</span>
-                      </div>
-                    ))}
+
+                    {(() => {
+                      const reviewsWithComment = movie.reviews.filter(r => r.comment?.trim());
+                      const reviewsToShow = reviewsWithComment.length > 0
+                        ? reviewsWithComment.slice(0, 2)
+                        : movie.reviews.slice(0, 2);
+                      return reviewsToShow.map((review, i) => (
+                        <div key={i} className="border-l-4 border-white/20 pl-3 italic text-gray-300">
+                          {review.comment || <span className="text-gray-500">No comment</span>} –
+                          <span className="ml-2 text-yellow-300 font-medium">{review.rating}</span>
+                        </div>
+                      ));
+                    })()}
                   </div>
                 )}
+
                 <div className="space-y-2 text-xs text-gray-400">
                   <div>
                     <span className="font-medium text-gray-300">Director: </span>
@@ -246,8 +256,8 @@ export default function MovieGrid() {
                     <Play className="w-4 h-4 inline mr-2" />
                     Watch Now
                   </button>
-                  <button className="px-4 py-3 border border-white/20 text-white/80 rounded-xl hover:bg-white/10 transition-all duration-300 hover:border-white/30">
-                    <Info className="w-4 h-4" />
+                  <button onClick={() => router.push(`/movies/${movie.id}`)} className="px-4 cursor-pointer py-3 border border-white/20 text-white/80 rounded-xl hover:bg-white/10 transition-all duration-300 hover:border-white/30">
+                    <Info className="w-4 h-4 " />
                   </button>
                   <button className="px-4 py-3 border border-white/20 text-white/80 rounded-xl hover:bg-white/10 transition-all duration-300 hover:border-white/30">
                     <Plus className="w-4 h-4" />

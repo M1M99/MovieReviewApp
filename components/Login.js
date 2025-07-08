@@ -3,20 +3,101 @@ import photo from '../public/login.jpg'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import Image from 'next/image';
 import { Github } from 'lucide-react';
+import { LogOut, User, Shield, Settings, FilmIcon } from 'lucide-react';
+
 function Login() {
   const { data: session } = useSession();
 
   if (session) {
+    // return (
+    //   <div className='min-h-screen flex justify-center items-center'>
+    //     <div className='flex flex-col h-fit justify-center items-center border-3 border-amber-300 w-fit py-19 px-24 gap-3 rounded-2xl'>
+    //       <div><span className='text-3xl text-black/70 pr-2'>Hello,</span><span className='capitalize'>{session.user?.name}! </span></div>
+    //       <img className='rounded-full' alt="asdk" src={session.user?.image} width={100} height={75} ></img>
+    //       {console.log(session.user)}
+    //       <button onClick={() => signOut()} className='bg-green-600 h-2xl cursor-pointer rounded-lg text-lg font-semibold py-3 px-7 m-2 hover:font-medium'>Sign out</button>
+    //     </div>
+    //   </div>
+    // )
     return (
-      <div className='min-h-screen flex justify-center items-center'>
-        <div className='flex flex-col h-fit justify-center items-center border-3 border-amber-300 w-fit py-19 px-24 gap-3 rounded-2xl'>
-          <div><span className='text-3xl text-black/70 pr-2'>Hello,</span><span className='capitalize'>{session.user?.name}! </span></div>
-          <img className='rounded-full' alt="asdk" src={session.user?.image} width={100} height={75} ></img>
-          {console.log(session.user)}
-          <button onClick={() => signOut()} className='bg-green-600 h-2xl cursor-pointer rounded-lg text-lg font-semibold py-3 px-7 m-2 hover:font-medium'>Sign out</button>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex justify-center items-center p-4">
+        <div className="relative bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl p-8 w-full max-w-md transform transition-all duration-300 hover:scale-105 hover:shadow-3xl border border-white/20">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-3xl"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full -translate-y-16 translate-x-16"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-400/10 to-blue-400/10 rounded-full translate-y-12 -translate-x-12"></div>
+
+          <div className="relative z-10 flex flex-col items-center text-center space-y-6">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 p-1 shadow-lg">
+                <img
+                  className="w-full h-full rounded-full object-cover border-4 border-white shadow-md"
+                  alt="Profile"
+                  src={session.user?.image}
+                />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-gray-800">
+                Welcome back,
+              </h1>
+              <h2 className="text-xl font-semibold text-blue-600 capitalize">
+                {session.user?.name}!
+              </h2>
+              <p className="text-sm text-gray-500">
+                {session.user?.email}
+              </p>
+            </div>
+
+            <div className="flex space-x-4 text-center">
+              <div className="bg-blue-50 rounded-xl p-3 flex-1">
+                <div className="text-lg font-bold text-blue-600">24</div>
+                <div className="text-xs text-gray-600">Projects</div>
+              </div>
+              <div className="bg-purple-50 rounded-xl p-3 flex-1">
+                <div className="text-lg font-bold text-purple-600">12</div>
+                <div className="text-xs text-gray-600">Teams</div>
+              </div>
+              <div className="bg-green-50 rounded-xl p-3 flex-1">
+                <div className="text-lg font-bold text-green-600">98%</div>
+                <div className="text-xs text-gray-600">Uptime</div>
+              </div>
+            </div>
+
+            <div className="flex space-x-3 w-full">
+              <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center flex-row space-x-2 hover:scale-105 active:scale-95">
+                <Link href={`/movies`} className='flex gap-2 items-center'>
+                  <FilmIcon size={18} />
+                  <span>Movies</span>
+                </Link>
+              </button>
+              <button className="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 hover:scale-105 active:scale-95">
+                <User size={18} />
+                <span>Profile</span>
+              </button>
+            </div>
+
+            <button
+              onClick={() => signOut()}
+              className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 group"
+            >
+              <LogOut size={18} className="group-hover:rotate-12 transition-transform duration-200" />
+              <span>Sign Out</span>
+            </button>
+
+            <div className="flex items-center space-x-2 text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-full">
+              <Shield size={14} className="text-green-500" />
+              <span>Secure Session</span>
+            </div>
+          </div>
         </div>
       </div>
-    )
+    );
+
+
   }
   return (
     <div>
@@ -30,6 +111,7 @@ function Login() {
 
 
 import React from "react";
+import Link from 'next/link';
 const FormLogin = () => {
   return (
     <div className="flex items-center justify-center h-screen w-full px-5 sm:px-0">

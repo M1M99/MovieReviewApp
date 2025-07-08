@@ -17,14 +17,17 @@ export async function DELETE(req, { params }) {
   }
 }
 export async function GET(req, { params }) {
-    const product = await prisma.movie.findUnique({
-        where: { id: Number(params.id) }
-    })
+  const product = await prisma.movie.findUnique({
+    include: {
+      reviews: true
+    },
+    where: { id: Number(params.id) }
+  })
 
-    if (!product) {
-        return new Response('Not Found', { status: 404 })
-    }
-    return Response.json(product, { status: 200 })
+  if (!product) {
+    return new Response('Not Found', { status: 404 })
+  }
+  return Response.json(product, { status: 200 })
 }
 
 
