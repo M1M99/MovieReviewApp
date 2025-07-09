@@ -61,12 +61,14 @@ const movies = [
 ];
 
 export default function MovieCard() {
+    const [movie, setMovie] = useState([]);
     const [currentMovieIndex, setCurrentMovieIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const currentMovie = movies[currentMovieIndex];
+    const currentMovie = movie[currentMovieIndex];
 
     useEffect(() => {
         if (isPaused) return;
@@ -76,7 +78,7 @@ export default function MovieCard() {
 
             setTimeout(() => {
                 setCurrentMovieIndex((prevIndex) =>
-                    prevIndex === movies.length - 1 ? 0 : prevIndex + 1
+                    prevIndex === movie.length - 1 ? 0 : prevIndex + 1
                 );
                 setIsTransitioning(false);
             }, 300);
@@ -85,6 +87,22 @@ export default function MovieCard() {
         return () => clearInterval(interval);
     }, [isPaused]);
 
+
+    useEffect(() => {
+        async function fetchMovie() {
+            try {
+                const res = await fetch(`/api/movie`);
+                const data = await res.json();
+                setMovie(data);
+                console.log(data);
+            } catch (error) {
+                console.error("Error fetching movie:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchMovie()
+    }, [])
     const handleDotClick = (index) => {
         if (index === currentMovieIndex) return;
 
@@ -99,8 +117,13 @@ export default function MovieCard() {
         setIsPaused(hovering);
         setIsHovered(hovering);
     };
-    const shortSynopsis = currentMovie.synopsis.slice(0, 60) + '...';
-
+    { console.log(currentMovie) }
+    if (!currentMovie) {
+        return <div className="text-center text-lg text-gray-500">Loading...</div>;
+    }
+    if (isLoading) {
+        return <div className="text-center text-lg text-gray-500">Loading movies...</div>
+    }
     return (
         <div
             className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl transform hover:scale-[1.02] "
@@ -113,7 +136,7 @@ export default function MovieCard() {
                         className={`absolute inset-0 bg-gradient-to-br ${currentMovie.gradient} transition-all duration-700 ${isTransitioning ? 'opacity-0 scale-110' : 'opacity-100 scale-100'
                             }`}
                         style={{
-                            backgroundImage: `url("${currentMovie.image}")`,
+                            backgroundImage: `url("${currentMovie.imageUrl}")`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                         }}
@@ -121,13 +144,13 @@ export default function MovieCard() {
                     <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
 
                     <div className="absolute top-4 right-4 space-y-2">
-                        {movies.map((_, index) => (
+                        {movie.map((_, index) => (
                             <button
                                 key={index}
                                 onClick={() => handleDotClick(index)}
                                 className={`w-2 h-2 rounded transition-all duration-300 hover:scale-125 cursor-pointer m-0.25 ${index === currentMovieIndex
-                                        ? 'bg-white shadow-lg'
-                                        : 'bg-white/40 hover:bg-white/60'
+                                    ? 'bg-white shadow-lg'
+                                    : 'bg-white/40 hover:bg-white/60'
                                     }`}
                             />
                         ))}
@@ -152,16 +175,10 @@ export default function MovieCard() {
 
                             <div className="flex items-center space-x-4 text-gray-600">
                                 <span className="text-lg font-medium">{currentMovie.year}</span>
-                                <span className="text-lg font-medium">{currentMovie.duration}</span>
+                                <span className="text-lg font-medium">{currentMovie.duration} mins</span>
                                 <div className="flex items-center space-x-2">
-                                    {currentMovie.genres.map((genre, index) => (
-                                        <div key={genre} className="flex items-center space-x-2">
-                                            <span className="text-teal-600 font-medium">{genre}</span>
-                                            {index < currentMovie.genres.length - 1 && (
-                                                <span className="text-gray-400">|</span>
-                                            )}
-                                        </div>
-                                    ))}
+                                    {currentMovie.genres
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -176,7 +193,7 @@ export default function MovieCard() {
 
                             <div className="block md:hidden">
                                 <p className="text-gray-700 text-base leading-snug">
-                                    {shortSynopsis}
+                                    {currentMovie.synopsis}
                                 </p>
                             </div>
                         </div>
@@ -212,8 +229,8 @@ export default function MovieCard() {
                                 <div
                                     key={index}
                                     className={`h-1 rounded-full transition-all duration-300 ${index === currentMovieIndex
-                                            ? 'bg-teal-500 flex-1'
-                                            : 'bg-gray-200 w-8'
+                                        ? 'bg-teal-500 flex-1'
+                                        : 'bg-gray-200 w-8'
                                         }`}
                                 />
                             ))}

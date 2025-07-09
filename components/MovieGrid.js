@@ -120,7 +120,7 @@ export default function MovieGrid() {
       <div className=" inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(120,119,198,0.1),transparent_50%)] opacity-40"></div>
       <div className=" inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(236,72,153,0.1),transparent_50%)] opacity-30"></div>
 
-      <div className="relative z-10 pt-16 pb-8">
+      <div className="relative z-10 pt-13 pb-8">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
@@ -245,10 +245,7 @@ export default function MovieGrid() {
                     <span className="font-medium text-gray-300">Director: </span>
                     <span className="text-white/80">{movie.director}</span>
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-300">Cast: </span>
-                    {/* <span className="text-white/80">{movie.cast.join(', ')}</span> */}
-                  </div>
+                  
                 </div>
 
                 <div className="flex space-x-3 pt-4">

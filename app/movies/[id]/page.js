@@ -1,11 +1,12 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { Star, MessageCircle, Play, Heart, Share2, Clock, Calendar } from 'lucide-react';
+import { Star, MessageCircle, Play, Heart, Share2, Clock, Calendar,Copy } from 'lucide-react';
 import { useParams } from 'next/navigation';
+
 const StarRating = ({ rating, totalRatings }) => {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0;
-  
+
   return (
     <div className="flex items-center space-x-2">
       <div className="flex items-center">
@@ -13,13 +14,12 @@ const StarRating = ({ rating, totalRatings }) => {
           <Star
             key={i}
             size={16}
-            className={`${
-              i < fullStars
-                ? 'text-yellow-400 fill-yellow-400'
-                : i === fullStars && hasHalfStar
+            className={`${i < fullStars
+              ? 'text-yellow-400 fill-yellow-400'
+              : i === fullStars && hasHalfStar
                 ? 'text-yellow-400 fill-yellow-400/50'
                 : 'text-gray-300'
-            } transition-colors duration-200`}
+              } transition-colors duration-200`}
           />
         ))}
       </div>
@@ -32,14 +32,26 @@ const StarRating = ({ rating, totalRatings }) => {
 
 export default function MovieCard() {
   const { id } = useParams();
+  const [openComments, setopenComments] = useState(false);
   const [movie, setMovie] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [copied, setCopied] = useState(null);
 
+  useEffect(() => {
+    if (movie?.reviews) {
+      setReviews(movie.reviews);
+    }
+  }, [movie]);
+
+  const handleNewReview = (review) => {
+    setReviews((prev) => [review, ...prev]);
+  };
   useEffect(() => {
     async function fetchMovie() {
       if (!id) return;
-      
+
       setIsLoading(true);
       try {
         const res = await fetch(`/api/movie/${id}`);
@@ -72,12 +84,88 @@ export default function MovieCard() {
     );
   }
 
+  function ReviewForm({ movieId, onNewReview }) {
+    const [rating, setRating] = useState('');
+    const [comment, setComment] = useState('');
+    const [loading, setLoading] = useState(false);
+
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (!rating) return alert('Please provide a rating.');
+
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/movie/${movieId}/review`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating, comment }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          onNewReview(data);
+          setRating('');
+          setComment('');
+        } else {
+          alert(data.error || 'err');
+        }
+      } catch (err) {
+        console.error('Submit error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return (
+      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        <div>
+          <label className="block text-sm text-white mb-1">Rating</label>
+          <input
+            type="number"
+            min="0"
+            max="10"
+            step="0.1"
+            value={rating}
+            onChange={(e) => setRating(e.target.value)}
+            className="w-full px-4 py-2 rounded-xl bg-white/10 text-white border border-white/20"
+            placeholder="Enter a rating from 0 to 10"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-white mb-1">Comment</label>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            className="w-full px-4 py-2 rounded-xl bg-white/10 text-white/70 border border-white/20"
+            placeholder="Join the conversation and share your thoughts about this movie."
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded"
+        >
+          {loading ? 'Sending...' : 'Submit Review'}
+        </button>
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => setopenComments(!openComments)}
+          className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 mx-2 rounded cursor-pointer"
+        >
+          {openComments ? 'Close' : 'Open Reviews'}
+        </button>
+      </form>
+    );
+  }
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <div className="max-w-6xl mx-auto">
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden shadow-2xl border border-white/20">
           <div className="md:flex">
-            {/* Movie Poster */}
             <div className="md:w-1/3 relative group">
               <div className="aspect-[2/3] relative overflow-hidden">
                 <img
@@ -109,21 +197,23 @@ export default function MovieCard() {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => setIsLiked(!isLiked)}
-                      className={`p-2 rounded-full transition-all duration-200 ${
-                        isLiked 
-                          ? 'bg-red-500 text-white' 
-                          : 'bg-white/10 text-white hover:bg-white/20'
-                      }`}
+                      className={`p-2 rounded-full transition-all duration-200 ${isLiked
+                        ? 'bg-red-500 text-white'
+                        : 'bg-white/10 text-white hover:bg-white/20'
+                        }`}
                     >
                       <Heart size={20} fill={isLiked ? 'white' : 'none'} />
                     </button>
-                    <button className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-200">
-                      <Share2 size={20} />
+                    <button className="cursor-pointer p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-200">
+                    {!copied &&(
+                      <Share2 
+                        size={20} onClick={() => { navigator.clipboard.writeText(window.location.href), <span>Copied</span>, setCopied(true), setTimeout(() => setCopied(false), 2000); }} />)}
+                      <span>{copied ? <Copy size={20}></Copy> : ''}</span>
+
                     </button>
                   </div>
                 </div>
 
-                {/* Movie Info */}
                 <div className="flex items-center space-x-6 text-sm text-purple-200 mb-4">
                   <div className="flex items-center space-x-1">
                     <Calendar size={16} />
@@ -135,7 +225,7 @@ export default function MovieCard() {
                   </div>
                 </div>
 
-                <StarRating rating={4.2} totalRatings={movie.reviews.length} />
+                <StarRating rating={movie.rating} totalRatings={movie.reviews.length} />
               </div>
 
               <div className="mb-6">
@@ -158,7 +248,6 @@ export default function MovieCard() {
                 </p>
               </div>
 
-              {/* Cast */}
               <div className="mb-8">
                 <h3 className="text-lg font-semibold mb-4 text-purple-200">Cast</h3>
                 <div className="flex space-x-4">
@@ -193,11 +282,27 @@ export default function MovieCard() {
                     Reviews ({movie.reviews ? movie.reviews.length : 0})
                   </h3>
                 </div>
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                  <p className="text-gray-300 text-sm">
-                    Join the conversation and share your thoughts about this movie.
-                  </p>
-                </div>
+                <ReviewForm movieId={id} onNewReview={handleNewReview} />
+                {openComments && (
+                  <div className="mt-6 space-y-4">
+                    {reviews.map((rev, idx) => (
+                      <div key={idx} className="bg-white/5 rounded-xl p-3 text-sm text-gray-200 border border-white/10">
+                        <div className="font-semibold text-purple-300 mb-1">Rating: {rev.rating}</div>
+                        {rev.comment && (
+                          <div className='flex justify-between'>
+                            <p>{rev.comment}</p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {new Date(rev.createdAt).toLocaleString('en-US', {
+                                dateStyle: 'medium',
+                                timeStyle: 'short',
+                              })}
+                            </p>
+                          </div>
+                        )}
+
+                      </div>
+                    ))}
+                  </div>)}
               </div>
 
               <div className="flex space-x-4">
