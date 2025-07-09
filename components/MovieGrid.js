@@ -241,10 +241,6 @@ export default function MovieGrid() {
                 )}
 
                 <div className="space-y-2 text-xs text-gray-400">
-                  <div>
-                    <span className="font-medium text-gray-300">Director: </span>
-                    <span className="text-white/80">{movie.director}</span>
-                  </div>
                   
                 </div>
 
@@ -256,7 +252,7 @@ export default function MovieGrid() {
                   <button onClick={() => router.push(`/movies/${movie.id}`)} className="px-4 cursor-pointer py-3 border border-white/20 text-white/80 rounded-xl hover:bg-white/10 transition-all duration-300 hover:border-white/30">
                     <Info className="w-4 h-4 " />
                   </button>
-                  <button className="px-4 py-3 border border-white/20 text-white/80 rounded-xl hover:bg-white/10 transition-all duration-300 hover:border-white/30">
+                  <button onClick={() => router.push(`/movies/${movie.id}`)} className="px-4 py-3 border border-white/20 text-white/80 rounded-xl hover:bg-white/10 transition-all duration-300 hover:border-white/30">
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>

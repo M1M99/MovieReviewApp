@@ -25,7 +25,20 @@ export async function POST(req, { params }) {
         },
       },
     });
+    const allReviews = await prisma.review.findMany({
+      where: { movieId },
+      select: { rating: true }
+    });
 
+    const averageRating = (
+      allReviews.reduce((acc, r) => acc + parseFloat(r.rating), 0) / allReviews.length
+    ).toFixed(1);
+
+    // Rating-i güncəllə
+    await prisma.movie.update({
+      where: { id: movieId },
+      data: { rating: averageRating.toString() }
+    });
     return NextResponse.json(review, { status: 201 });
   } catch (err) {
     console.error('Review Error:', err);
@@ -43,7 +56,7 @@ export async function GET(req, { params }) {
   try {
     const reviews = await prisma.review.findMany({
       where: { movieId },
-      orderBy: { createdAt: 'desc' }, 
+      orderBy: { createdAt: 'desc' },
     });
 
     return NextResponse.json(reviews, { status: 200 });
@@ -51,4 +64,18 @@ export async function GET(req, { params }) {
     console.error('Review Get Error:', err);
     return NextResponse.json({ error: 'Review Fetch Error' }, { status: 500 });
   }
+}
+
+export async function DELETE(req, { params }) {
+  const id = params.id;
+  try {
+    const deleted = await prisma.review.delete({
+      where: { id: Number(id) }
+    })
+    return NextResponse.json({ deleted }, { status: 204 })
+  }
+  catch {
+    return NextResponse.json({ status: 404 })
+  }
+
 }

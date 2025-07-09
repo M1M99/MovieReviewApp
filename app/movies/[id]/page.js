@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { Star, MessageCircle, Play, Heart, Share2, Clock, Calendar,Copy } from 'lucide-react';
+import { Star, MessageCircle, Play, Heart, Share2, Clock, Calendar, Copy } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 const StarRating = ({ rating, totalRatings }) => {
@@ -38,6 +38,9 @@ export default function MovieCard() {
   const [isLiked, setIsLiked] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [copied, setCopied] = useState(null);
+  const averageRating = (
+    reviews.reduce((sum, r) => sum + parseFloat(r.rating), 0) / reviews.length
+  ).toFixed(1);
 
   useEffect(() => {
     if (movie?.reviews) {
@@ -205,9 +208,9 @@ export default function MovieCard() {
                       <Heart size={20} fill={isLiked ? 'white' : 'none'} />
                     </button>
                     <button className="cursor-pointer p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-200">
-                    {!copied &&(
-                      <Share2 
-                        size={20} onClick={() => { navigator.clipboard.writeText(window.location.href), <span>Copied</span>, setCopied(true), setTimeout(() => setCopied(false), 2000); }} />)}
+                      {!copied && (
+                        <Share2
+                          size={20} onClick={() => { navigator.clipboard.writeText(window.location.href), <span>Copied</span>, setCopied(true), setTimeout(() => setCopied(false), 2000); }} />)}
                       <span>{copied ? <Copy size={20}></Copy> : ''}</span>
 
                     </button>
@@ -225,7 +228,7 @@ export default function MovieCard() {
                   </div>
                 </div>
 
-                <StarRating rating={movie.rating} totalRatings={movie.reviews.length} />
+                <StarRating rating={averageRating} totalRatings={movie.reviews.length} />
               </div>
 
               <div className="mb-6">
