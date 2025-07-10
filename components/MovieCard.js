@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Play, Circle } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const movies = [
     {
@@ -169,11 +171,14 @@ export default function MovieCard() {
                     <div className={`space-y-6 transition-all duration-500 ${isTransitioning ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'
                         }`}>
                         <div>
-                            <h1 className="text-5xl font-bold text-gray-900 mb-2 tracking-tight">
+                            {/* <h1 className="text-5xl font-bold text-gray-900 mb-2 tracking-tight">
                                 {currentMovie.title}
-                            </h1>
+                            </h1> */}
+                            <Link href={`/movies/${currentMovie.id}`} className="text-5xl font-bold text-gray-900 mb-2 tracking-tight">
+                                {currentMovie.title}
+                            </Link>
 
-                            <div className="flex items-center space-x-4 text-gray-600">
+                            <div className="flex items-center space-x-4 text-gray-600 mt-2">
                                 <span className="text-lg font-medium">{currentMovie.year}</span>
                                 <span className="text-lg font-medium">{currentMovie.duration} mins</span>
                                 <div className="flex items-center space-x-2">
@@ -202,7 +207,7 @@ export default function MovieCard() {
 
                     <div className={`flex items-center justify-between transition-all duration-500  ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
                         }`}>
-                        <button className="group flex items-center space-x-3 px-6 py-3 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95">
+                        <button className="group flex items-center space-x-3 px-6 py-3 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95" onClick={() => window.location.href = (`https://www.youtube.com/results?search_query=${currentMovie.title}`)}>
                             <Play
                                 className={`w-5 h-5 text-gray-700 transition-all duration-300 ${isHovered ? 'text-teal-600' : ''
                                     }`}
