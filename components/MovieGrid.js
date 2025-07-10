@@ -206,18 +206,6 @@ export default function MovieGrid() {
               </div>
 
               <div className="p-6 space-y-5">
-                {/* <div className="flex flex-wrap gap-2">
-                  {movie.genres.map((genre) => (
-                    <span
-                      key={genre}
-                      className="inline-flex items-center space-x-1 px-3 py-1 bg-gradient-to-r from-white/10 to-white/5 rounded-full text-xs font-medium text-white/90 border border-white/10 hover:border-white/20 transition-colors duration-300"
-                    >
-                      <Tag className="w-3 h-3" />
-                      <span>{genre}</span>
-                    </span>
-                  ))}
-                </div> */}
-
                 <p className="text-gray-300 text-sm leading-relaxed line-clamp-3">
                   {movie.synopsis}
                 </p>
@@ -241,7 +229,7 @@ export default function MovieGrid() {
                 )}
 
                 <div className="space-y-2 text-xs text-gray-400">
-                  
+
                 </div>
 
                 <div className="flex space-x-3 pt-4">
@@ -265,8 +253,11 @@ export default function MovieGrid() {
             </div>
           ))}
         </div>
+        <div className='mt-22'>
+          <Link href={`movies/add-new`}>        <button className='bg-blue-200 px-4 py-2 rounded cursor-pointer flex content-center mx-auto'>+</button>
+          </Link>
+        </div>
       </div>
-
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none" />
     </div>
   );

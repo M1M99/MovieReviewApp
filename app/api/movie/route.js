@@ -13,40 +13,61 @@ export async function GET() {
 
 export async function POST(req) {
   try {
-    const body = await req.json();
-    const {
-      reviews,
-      gradient,
-      imageUrl,
-      rating,
-      synopsis,
-      duration,
-      year,
-      createdAt,
-      title,
-      genres,
-    } = body;
+    const formData = await req.formData();
+    const file = formData.get("image");
+
+    let imageUrl = "";
+
+    if (file && typeof file === "object") {
+      const buffer = Buffer.from(await file.arrayBuffer());
+
+      const cloudForm = new FormData();
+      cloudForm.append('file', `data:${file.type};base64,${buffer.toString("base64")}`);
+      cloudForm.append('upload_preset', process.env.CLOUDINARY_UPLOAD_PRESET);
+
+      const cloudRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: cloudForm,
+        }
+      );
+
+      const cloudData = await cloudRes.json();
+
+      if (!cloudData.secure_url) {
+        console.error("!!Cloudinary Response:", cloudData);
+        throw new Error("Cloudinary Upload Err");
+      }
+
+      imageUrl = cloudData.secure_url;
+    }
+
+    const title = formData.get("title");
+    const synopsis = formData.get("synopsis") || "";
+    const year = parseInt(formData.get("year"));
+    const duration = parseInt(formData.get("duration"));
+    const rating = formData.get("rating") || "";
+    const gradient = formData.get("gradient") || null;
+    const genres = formData.get("genres") || null;
 
     const movie = await prisma.movie.create({
       data: {
         title,
-        synopsis: synopsis || "",
-        year: parseInt(year),
-        duration: parseInt(duration),
-        rating: rating || "",
+        synopsis,
+        year,
+        duration,
+        rating,
         imageUrl,
-        gradient: gradient ?? null,
-        createdAt: createdAt ? new Date(createdAt) : new Date(),
-        genres: genres || null,
-        reviews: {
-          create: reviews || [],
-        },
+        gradient,
+        genres,
       },
     });
 
     return NextResponse.json(movie, { status: 201 });
-  } catch (error) {
-    console.error("POST error:", error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+
+  } catch (err) {
+    console.error("Film Post Error:", err);
+    return NextResponse.json({ error: "Error Occurred" }, { status: 500 });
   }
 }
