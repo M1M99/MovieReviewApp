@@ -2,7 +2,7 @@
 import photo from '../public/login.jpg'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import Image from 'next/image';
-import { Github } from 'lucide-react';
+import { Github, GithubIcon } from 'lucide-react';
 import { LogOut, User, Shield, Settings, FilmIcon } from 'lucide-react';
 
 function Login() {
@@ -101,9 +101,6 @@ function Login() {
   }
   return (
     <div>
-      {/* <button onClick={() => signIn('google')} className='bg-amber-200 px-1 py-2 m-2 cursor-pointer rounded hover:bg-amber-400'>Sign In with Google</button>
-            <button onClick={() => signIn('github')} className='bg-amber-200 px-1 py-2 m-2 cursor-pointer rounded hover:bg-amber-400'>Sign In with Github</button>
-            <Github className="border-2 border-amber-400 rounded w-10 h-10 p-1 cursor-pointer" onClick={() => signIn('github')} /> */}
       <FormLogin />
     </div>
   )
@@ -183,6 +180,20 @@ const FormLogin = () => {
               <div className="flex w-full justify-center">
                 <h1 className="whitespace-nowrap text-gray-600 font-bold" >
                   Sign in with Google
+                </h1>
+              </div>
+            </div>
+          </button>
+           <button
+            className=" flex items-center justify-center mt-4 text-white rounded-lg shadow-md hover:bg-gray-100 w-full focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <div className="flex px-5 justify-center w-full py-3 cursor-pointer" type='button' onClick={() => signIn('github')}>
+              <div className="min-w-[30px]">
+                <GithubIcon color='red'/>
+              </div>
+              <div className="flex w-full justify-center">
+                <h1 className="whitespace-nowrap text-gray-600 font-bold" >
+                  Sign in with Github
                 </h1>
               </div>
             </div>
